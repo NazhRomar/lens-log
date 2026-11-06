@@ -1,0 +1,122 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/* Color tokens. Light is the default; dark applies when the system is dark
+   (unless the user forced light) or when the user forced dark. */
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --line: #e3e8ef;
+  --fg: #0f172a;
+  --fg-soft: #334155;
+  --muted: #526075;
+  --track: #e8edf4;
+  --accent: #1d5fd1;
+  --accent-strong: #164aa6;
+  --accent-soft: #e8f0fd;
+  --on-accent: #ffffff;
+  --ok: #157a3e;
+  --ok-soft: #e6f4ec;
+  --warn: #8a5200;
+  --warn-bar: #c27803;
+  --warn-soft: #fdf3e1;
+  --danger: #b42318;
+  --danger-strong: #8f1d14;
+  --danger-soft: #fdecea;
+  --skin: #eef3fa;
+  --skin-line: #a9b8cc;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0b1220;
+    --surface: #131c2e;
+    --line: #24324a;
+    --fg: #e6ebf2;
+    --fg-soft: #c9d3e0;
+    --muted: #9aa8bc;
+    --track: #24324a;
+    --accent: #6fa3f7;
+    --accent-strong: #8ab4f8;
+    --accent-soft: #172a4a;
+    --on-accent: #0b1220;
+    --ok: #6fdb9a;
+    --ok-soft: #12301f;
+    --warn: #f5c46b;
+    --warn-bar: #f2b24c;
+    --warn-soft: #33260f;
+    --danger: #f6a39b;
+    --danger-strong: #f6a39b;
+    --danger-soft: #3a1715;
+    --skin: #1c2740;
+    --skin-line: #50607a;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b1220;
+  --surface: #131c2e;
+  --line: #24324a;
+  --fg: #e6ebf2;
+  --fg-soft: #c9d3e0;
+  --muted: #9aa8bc;
+  --track: #24324a;
+  --accent: #6fa3f7;
+  --accent-strong: #8ab4f8;
+  --accent-soft: #172a4a;
+  --on-accent: #0b1220;
+  --ok: #6fdb9a;
+  --ok-soft: #12301f;
+  --warn: #f5c46b;
+  --warn-bar: #f2b24c;
+  --warn-soft: #33260f;
+  --danger: #f6a39b;
+  --danger-strong: #f6a39b;
+  --danger-soft: #3a1715;
+  --skin: #1c2740;
+  --skin-line: #50607a;
+  color-scheme: dark;
+}
+
+/* Expose the tokens to Tailwind: bg-surface, text-muted, border-line, ... */
+@theme inline {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-muted: var(--muted);
+  --color-track: var(--track);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-bar: var(--warn-bar);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-danger-soft: var(--danger-soft);
+  --color-skin: var(--skin);
+  --color-skin-line: var(--skin-line);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
