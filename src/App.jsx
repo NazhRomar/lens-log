@@ -9,6 +9,7 @@ import OnboardingPage from './features/onboarding/OnboardingPage';
 import SettingsPage from './features/settings/SettingsPage';
 import SuppliesPage from './features/supplies/SuppliesPage';
 import { useApplyTheme, useSettings } from './hooks/useSettings';
+import NativeBridge from './platform/NativeBridge';
 import { syncReminders } from './platform/reminders';
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <NativeBridge />
       {settings.onboarded ? <AppRoutes /> : <OnboardingPage />}
     </BrowserRouter>
   );

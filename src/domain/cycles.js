@@ -16,16 +16,14 @@ export const SOON_DAYS = 2;
  *
  * state: 'ok' | 'soon' (≤ 2 days left) | 'due' (replace today) | 'overdue'
  *
+ * Days are calendar days from opening (worn or not), as lens makers specify.
+ *
  * @param {{openedAt:number, replacementDays:number}} cycle
  * @param {number|Date} now
- * @param {{countMode?:'calendar'|'wearDays', wearDays?:number}} [opts]
  */
-export function cycleStatus(cycle, now, opts = {}) {
+export function cycleStatus(cycle, now) {
   const total = cycle.replacementDays;
-  const day =
-    opts.countMode === 'wearDays' && typeof opts.wearDays === 'number'
-      ? opts.wearDays
-      : differenceInCalendarDays(now, cycle.openedAt) + 1;
+  const day = differenceInCalendarDays(now, cycle.openedAt) + 1;
   const daysLeft = total - day + 1;
   const replaceBy = startOfDay(addDays(cycle.openedAt, total));
 
@@ -84,13 +82,3 @@ export function sameSchedule(a, b) {
   );
 }
 
-/** Number of distinct calendar days with a wear session since the lens was opened. */
-export function wearDaysSince(openedAt, sessions) {
-  const days = new Set();
-  for (const s of sessions) {
-    if (s.startedAt >= startOfDay(openedAt).getTime()) {
-      days.add(startOfDay(s.startedAt).getTime());
-    }
-  }
-  return days.size;
-}

@@ -1,9 +1,10 @@
 import { addDays, setHours, setMinutes, startOfDay } from 'date-fns';
+import { syncWidget } from './widget';
 import { db } from '../db/db';
 import { cycleStatus, sameSchedule } from '../domain/cycles';
 import { supplyStatus } from '../domain/supplies';
-import { HOUR } from '../domain/wear';
-import { IDS, cancel, schedule } from './notifications';
+import { HOUR, wornOnDay } from '../domain/wear';
+import { ACTIONS, IDS, cancel, schedule } from './notifications';
 import { isNative } from './native';
 
 const DUE_AT = { hour: 7, minute: 30 }; // morning of the replacement day
@@ -37,6 +38,7 @@ async function syncReplacement(settings, now) {
       at: atTime(replaceBy, DUE_AT),
       title: `New ${what} today`,
       body: both ? 'Your lenses are due. Open a fresh pair for both eyes.' : `Your ${what} is due. Open a fresh one.`,
+      actionTypeId: ACTIONS.replace,
     });
     if (settings.replacementDays > 2) {
       await schedule({
@@ -49,23 +51,52 @@ async function syncReplacement(settings, now) {
   }
 }
 
-async function syncWear(settings) {
-  await cancel(IDS.wearNear, IDS.wearMax);
+/**
+ * Wear reminders count the whole day: time already worn in earlier sessions
+ * today is subtracted from the limit for the session that is running now.
+ */
+async function syncWear(settings, now) {
+  await cancel(IDS.wearNear, IDS.wearMax, IDS.bedtime);
   const active = await db.sessions.filter((s) => s.endedAt == null).first();
   if (!active) return;
+
   const max = settings.maxWearHours;
+  const dayStart = startOfDay(active.startedAt).getTime();
+  const earlier = await db.sessions
+    .where('startedAt')
+    .between(dayStart - 24 * HOUR, active.startedAt)
+    .filter((s) => s.id !== active.id && s.endedAt != null)
+    .toArray();
+  const wornEarlier = wornOnDay(earlier, dayStart, now);
+  const limitAt = active.startedAt + max * HOUR - wornEarlier;
+
   await schedule({
     id: IDS.wearNear,
-    at: active.startedAt + (max - 1) * HOUR,
+    at: limitAt - HOUR,
     title: '1 hour of wear left',
-    body: `You've had your lenses in for ${max - 1} hours.`,
+    body: `You've worn your lenses for ${max - 1} hours today.`,
+    actionTypeId: ACTIONS.wear,
   });
   await schedule({
     id: IDS.wearMax,
-    at: active.startedAt + max * HOUR,
+    at: limitAt,
     title: 'Time to take your lenses out',
-    body: `You've reached your ${max}-hour limit.`,
+    body: `You've reached your ${max}-hour limit for today.`,
+    actionTypeId: ACTIONS.wear,
   });
+
+  if (settings.bedtimeReminder) {
+    const [h, m] = settings.bedtimeReminder.split(':').map(Number);
+    let at = atTime(now, { hour: h, minute: m });
+    if (at.getTime() <= now) at = addDays(at, 1);
+    await schedule({
+      id: IDS.bedtime,
+      at,
+      title: 'Lenses still in',
+      body: 'Take your lenses out before you go to sleep.',
+      actionTypeId: ACTIONS.wear,
+    });
+  }
 }
 
 const SUPPLY_AT = { hour: 9, minute: 0 };
@@ -88,8 +119,9 @@ async function syncSupplies(now) {
 }
 
 /**
- * Rebuilds every scheduled reminder from what is in the database.
- * Safe to call any time; never throws (a failed reminder must not break the app).
+ * Rebuilds every scheduled reminder (and the home-screen widget) from what is
+ * in the database. Safe to call any time; never throws (a failed reminder must
+ * not break the app).
  */
 export async function syncReminders() {
   if (!isNative) return;
@@ -98,9 +130,10 @@ export async function syncReminders() {
     if (!settings) return;
     const now = Date.now();
     await syncReplacement(settings, now);
-    await syncWear(settings);
+    await syncWear(settings, now);
     await syncSupplies(now);
   } catch (err) {
     console.warn('Could not schedule reminders', err);
   }
+  await syncWidget();
 }

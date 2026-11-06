@@ -62,7 +62,7 @@ export default function ReplaceDialog({ open, onClose, firstTime, stock }) {
       onClick={(e) => e.target === ref.current && onClose()}
       className="fixed inset-x-0 top-auto bottom-0 m-0 max-h-[90vh] w-full max-w-none rounded-t-[24px] border-0 bg-surface p-0 text-fg backdrop:bg-black/50 md:inset-0 md:m-auto md:max-w-md md:rounded-[24px]"
     >
-      <form onSubmit={submit} className="flex flex-col gap-5 p-5 pb-[max(env(safe-area-inset-bottom),20px)]">
+      <form onSubmit={submit} className="flex flex-col gap-5 p-5 pb-[max(var(--safe-area-inset-bottom),20px)]">
         <div className="flex items-center justify-between">
           <h2 id="replace-dialog-h" className="m-0 text-lg font-bold">
             {firstTime ? 'New pack opened' : 'Replace lenses'}

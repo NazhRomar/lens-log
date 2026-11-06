@@ -1,13 +1,37 @@
 // Guide content. Each topic has an id (used in the URL), a section, and steps.
-// A step may name an `art` key from ./illustrations. Topics with no steps yet
-// show a "being written" note.
+// A step may name an `art` key from ./illustrations.
+//
+// `section` is either a section id, or an object choosing the section by lens
+// type ({ daily: ..., default: ... }); null hides the topic for that lens type.
 
 export const DISCLAIMER = "General guidance only. Always follow your eye care professional's instructions.";
 
-export const SECTIONS = [
-  { id: 'routine', title: 'Daily routine' },
-  { id: 'safety', title: 'Safety' },
+function newPairTitle(settings) {
+  if (settings.lensType === 'biweekly') return 'Every 2 weeks';
+  if (settings.lensType === 'monthly') return 'Every month';
+  return `Every ${settings.replacementDays} days`;
+}
+
+const SECTIONS = [
+  { id: 'routine', title: () => 'Daily routine' },
+  { id: 'newPair', title: newPairTitle },
+  { id: 'safety', title: () => 'Safety' },
 ];
+
+function sectionOf(topic, lensType) {
+  const s = topic.section;
+  if (s && typeof s === 'object') return lensType in s ? s[lensType] : s.default;
+  return s;
+}
+
+/** The guide's sections for the user's lens type, each with its topics. Empty sections are left out. */
+export function guideSections(settings) {
+  return SECTIONS.map((section) => ({
+    id: section.id,
+    title: section.title(settings),
+    topics: TOPICS.filter((t) => sectionOf(t, settings.lensType) === section.id),
+  })).filter((s) => s.topics.length > 0);
+}
 
 export const TOPICS = [
   {
@@ -58,7 +82,7 @@ export const TOPICS = [
   },
   {
     id: 'opening-pack',
-    section: 'routine',
+    section: { daily: 'routine', default: 'newPair' },
     title: 'Opening a blister pack',
     summary: 'Peel, check, never use a torn lens',
     steps: [
@@ -165,7 +189,7 @@ export const TOPICS = [
   },
   {
     id: 'cleaning',
-    section: 'routine',
+    section: { daily: null, default: 'routine' }, // daily lenses are thrown away, not stored
     title: 'Cleaning and storage',
     summary: 'Rub, rinse, fresh solution, air-dry',
     steps: [
@@ -195,6 +219,40 @@ export const TOPICS = [
         title: 'Look after the bottle',
         body: 'Keep the tip from touching anything, close it after use, and throw it away once it has been open longer than the label says.',
         tip: 'Using a hydrogen peroxide system? Only use the case it came with, and never put the solution in your eye before it has finished neutralizing.',
+      },
+    ],
+  },
+  {
+    id: 'sleep',
+    section: 'safety',
+    title: 'Sleeping and napping',
+    summary: 'Lenses out before any sleep, even a nap',
+    steps: [
+      {
+        title: 'Take them out before any sleep',
+        body: 'That includes short naps, dozing on the couch, and sleeping on a bus or plane. Only sleep in lenses if your eye doctor has prescribed lenses for overnight wear and told you it is safe.',
+        tip: 'Tap "Take lenses out" in Lens Log before bed. If a session is still running long past your limit, the app asks whether you slept in them.',
+      },
+      {
+        title: 'Why it matters',
+        body: 'With your eyes closed, less oxygen reaches the surface of your eye and fewer tears wash under the lens. Germs can stay trapped there. Sleeping in lenses makes a serious eye infection several times more likely, even if you have done it before without problems.',
+      },
+      {
+        title: 'Plan for long trips',
+        body: 'If you might fall asleep on a flight, long ride or movie, take your lenses out first and wear glasses. Carry your glasses, a case and solution, or a spare pair of daily lenses.',
+      },
+      {
+        title: 'If you fell asleep in them',
+        body: 'Do not pull them out right away if they feel stuck. Blink a few times and use rewetting drops made for contact lenses until the lenses move freely, then take them out.',
+      },
+      {
+        title: 'Give your eyes a break',
+        body: 'Wear glasses for the rest of the day. Throw daily lenses away. Clean and disinfect other lenses before wearing them again, or start a fresh pair.',
+      },
+      {
+        title: 'Watch for warning signs',
+        body: 'Over the next day or two, look out for redness, pain, blurry vision, light sensitivity or discharge. If you notice any of them, keep your lenses out and contact your eye doctor.',
+        tip: 'See the Red flags guide for what to do.',
       },
     ],
   },

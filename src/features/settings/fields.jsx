@@ -58,6 +58,40 @@ export function EyesLinkedField({ value, onChange }) {
   );
 }
 
+/** Bedtime reminder: null (off) or "HH:mm". */
+export function BedtimeField({ value, onChange }) {
+  const on = !!value;
+  return (
+    <div className="flex flex-col gap-2">
+      <Segmented
+        name="bedtime"
+        legend="Bedtime reminder"
+        options={[
+          { value: 'off', label: 'Off' },
+          { value: 'on', label: 'On' },
+        ]}
+        value={on ? 'on' : 'off'}
+        onChange={(v) => onChange(v === 'on' ? '22:30' : null)}
+      />
+      {on && (
+        <label className="flex items-center justify-between gap-3 text-sm font-semibold">
+          Remind me at
+          <input
+            type="time"
+            required
+            value={value}
+            onChange={(e) => e.target.value && onChange(e.target.value)}
+            className="min-h-11 rounded-xl border border-line bg-surface px-3 text-base font-normal text-fg"
+          />
+        </label>
+      )}
+      <p className="m-0 text-sm leading-relaxed text-muted">
+        Only sent if your lenses are still logged in at that time.
+      </p>
+    </div>
+  );
+}
+
 export function MaxHoursField({ value, onChange }) {
   return (
     <div className="flex flex-col gap-2">

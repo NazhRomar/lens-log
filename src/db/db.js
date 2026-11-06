@@ -20,8 +20,7 @@ export const DEFAULT_SETTINGS = {
   brand: '',
   eyesLinked: true,
   maxWearHours: 10,
-  countMode: 'calendar',
-  bedtimeReminder: null,
+  bedtimeReminder: null, // "22:30", or null for off
   theme: 'system',
   onboarded: false,
 };
@@ -36,7 +35,7 @@ export const LENS_TYPES = {
 db.on('populate', (tx) => {
   tx.table('settings').add(DEFAULT_SETTINGS);
   tx.table('stock').bulkAdd([
-    { eye: 'left', count: 0, lowThreshold: 2 },
-    { eye: 'right', count: 0, lowThreshold: 2 },
+    { eye: 'left', count: 0 },
+    { eye: 'right', count: 0 },
   ]);
 });

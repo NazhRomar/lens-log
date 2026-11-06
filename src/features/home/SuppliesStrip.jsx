@@ -20,12 +20,12 @@ function Cell({ label, children, last }) {
   );
 }
 
-export default function SuppliesStrip({ supplies, stock, now }) {
+export default function SuppliesStrip({ supplies, stock, now, replacementDays }) {
   const caseT = supplyText(supplies.case, now);
   const solT = supplyText(supplies.solution, now);
   const eye = (key, short) => {
     const row = stock[key];
-    const low = row && isLowStock(row);
+    const low = row && isLowStock(row, replacementDays);
     return <span className={low ? 'text-danger' : ''}>{`${short} ${row?.count ?? 0}`}</span>;
   };
 

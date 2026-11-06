@@ -7,7 +7,7 @@ const BTN =
 
 function EyeStock({ eye, label, row, prescription, replacementDays }) {
   const count = row?.count ?? 0;
-  const low = row && isLowStock(row);
+  const low = row && isLowStock(row, replacementDays);
   const note = count === 0 ? 'Out of stock' : low ? 'Low · reorder soon' : stockDuration(count, replacementDays);
 
   return (

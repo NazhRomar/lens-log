@@ -13,7 +13,7 @@ export default function NavBar() {
   return (
     <nav
       aria-label="Main"
-      className="order-last shrink-0 border-t border-line bg-surface pb-[max(env(safe-area-inset-bottom),12px)] md:order-first md:w-24 md:border-t-0 md:border-r md:pt-6 md:pb-6"
+      className="order-last shrink-0 border-t border-line bg-surface pb-[max(var(--safe-area-inset-bottom),12px)] md:order-first md:w-24 md:border-t-0 md:border-r md:pt-6 md:pb-6"
     >
       <div className="hidden justify-center pb-6 md:flex">
         <img src="/favicon.svg" alt="Lens Log" width="40" height="40" />

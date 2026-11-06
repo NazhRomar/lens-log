@@ -4,4 +4,14 @@
     <string name="title_activity_main">Lens Log</string>
     <string name="package_name">com.nazhromar.lenslog</string>
     <string name="custom_url_scheme">com.nazhromar.lenslog</string>
+    <string name="widget_description">Days until new lenses, and whether your lenses are in</string>
+    <string name="widget_label">Countdown</string>
+    <string name="widget_wear_label">Wear timer</string>
+    <string name="widget_wear_description">Today\'s wear time, live, with a Put in / Take out button</string>
+    <string name="widget_ring_label">Days left</string>
+    <string name="widget_ring_description">A small ring with the days until new lenses</string>
+    <string name="widget_supplies_label">Supplies</string>
+    <string name="widget_supplies_description">Days left on your case and solution, and spare lenses per eye</string>
+    <string name="widget_overview_label">Overview</string>
+    <string name="widget_overview_description">Countdown, wear time, supplies and the wear button in one</string>
 </resources>

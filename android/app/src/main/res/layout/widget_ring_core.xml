@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Countdown ring, included by the ring and overview widgets. One of the three
+     bars is visible at a time (normal / last day / due), set in WidgetData.bindRing. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+        android:id="@+id/ring_ok"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="100"
+        android:minHeight="0dp"
+        android:maxHeight="200dp"
+        android:minWidth="0dp"
+        android:maxWidth="200dp"
+        android:progressDrawable="@drawable/ring_ok" />
+
+    <ProgressBar
+        android:id="@+id/ring_warn"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="100"
+        android:minHeight="0dp"
+        android:maxHeight="200dp"
+        android:minWidth="0dp"
+        android:maxWidth="200dp"
+        android:progressDrawable="@drawable/ring_warn"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/ring_danger"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:indeterminate="false"
+        android:max="100"
+        android:minHeight="0dp"
+        android:maxHeight="200dp"
+        android:minWidth="0dp"
+        android:maxWidth="200dp"
+        android:progressDrawable="@drawable/ring_danger"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/ring_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="–"
+            android:textColor="@color/widget_text"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/ring_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:textColor="@color/widget_muted"
+            android:textSize="10sp" />
+    </LinearLayout>
+</FrameLayout>

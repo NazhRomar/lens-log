@@ -3,9 +3,10 @@ import { Link } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
-import { updateLensSchedule } from '../../db/actions';
+import { resetAllData, updateLensSchedule } from '../../db/actions';
+import { syncReminders } from '../../platform/reminders';
 import { downloadBackup, importData } from '../../db/export';
-import { EyesLinkedField, LensTypeField, MaxHoursField } from './fields';
+import { BedtimeField, EyesLinkedField, LensTypeField, MaxHoursField } from './fields';
 import { updateSettings, useSettings } from '../../hooks/useSettings';
 import { isNative } from '../../platform/native';
 import {
@@ -16,7 +17,7 @@ import {
   schedule,
 } from '../../platform/notifications';
 
-function NotificationsCard() {
+function NotificationsCard({ settings }) {
   const [status, setStatus] = useState('');
 
   if (!isNative) {
@@ -53,6 +54,13 @@ function NotificationsCard() {
       <p className="m-0 text-sm leading-relaxed text-muted">
         Replacement, wear-time and bedtime reminders are scheduled on this phone and arrive even when the app is closed.
       </p>
+      <BedtimeField
+        value={settings.bedtimeReminder}
+        onChange={async (v) => {
+          await updateSettings({ bedtimeReminder: v });
+          await syncReminders();
+        }}
+      />
       <div className="grid grid-cols-2 gap-3">
         <Button variant="secondary" onClick={sendTest}>
           Send test
@@ -76,7 +84,6 @@ const THEMES = [
   { value: 'dark', label: 'Dark' },
 ];
 
-// TODO(v1): counting mode, bedtime reminder, reset all data.
 export default function SettingsPage() {
   const settings = useSettings();
   const fileRef = useRef(null);
@@ -148,7 +155,7 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      <NotificationsCard />
+      <NotificationsCard settings={settings} />
 
       <Card className="flex flex-col gap-3">
         <h2 className="m-0 text-[15px] font-semibold">Backup</h2>
@@ -169,6 +176,23 @@ export default function SettingsPage() {
             {message}
           </p>
         )}
+      </Card>
+
+      <Card className="flex flex-col gap-3">
+        <h2 className="m-0 text-[15px] font-semibold">Reset</h2>
+        <p className="m-0 text-sm leading-relaxed text-muted">
+          Deletes all lenses, wear history, supplies and settings on this device and starts setup again. Export a backup
+          first if you want to keep anything.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (confirm('Delete all Lens Log data on this device? This cannot be undone.')) resetAllData();
+          }}
+          className="min-h-12 cursor-pointer rounded-[14px] border border-danger/40 bg-danger-soft text-base font-semibold text-danger"
+        >
+          Reset all data
+        </button>
       </Card>
     </div>
   );

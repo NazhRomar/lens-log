@@ -39,8 +39,15 @@ export function supplyStatus(supply, now) {
   };
 }
 
-export function isLowStock(stock) {
-  return stock.count < stock.lowThreshold;
+/** Spare lenses count as low when they would last less than this many days. */
+export const LOW_STOCK_DAYS = 45;
+
+/**
+ * Low-stock check that works for any lens type: under ~6 weeks of lenses left.
+ * Daily: fewer than 45 · 2-week: fewer than 4 · monthly: fewer than 2.
+ */
+export function isLowStock(stock, replacementDays) {
+  return stock.count * replacementDays < LOW_STOCK_DAYS;
 }
 
 /** "≈ 8 weeks" of lenses left, given how long each lens lasts. */

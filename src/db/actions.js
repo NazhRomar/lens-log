@@ -1,6 +1,16 @@
 import { db } from './db';
-import { ensurePermission } from '../platform/notifications';
+import { cancelAll, ensurePermission } from '../platform/notifications';
 import { syncReminders } from '../platform/reminders';
+import { clearWidget } from '../platform/widget';
+
+/** Deletes everything on this device, cancels reminders and restarts at setup. */
+export async function resetAllData() {
+  await cancelAll().catch(() => {});
+  await clearWidget();
+  db.close();
+  await db.delete();
+  window.location.replace('/');
+}
 
 // Every change that affects a reminder goes through here, so reminders are
 // re-synced right after the database is updated.

@@ -8,6 +8,7 @@ import Stepper from '../../components/ui/Stepper';
 import { completeOnboarding } from '../../db/actions';
 import { DEFAULT_SETTINGS, LENS_TYPES } from '../../db/db';
 import { openedAtFromDate } from '../../domain/cycles';
+import { useBackHandler } from '../../platform/back';
 import { isNative } from '../../platform/native';
 import { ensurePermission } from '../../platform/notifications';
 import { EyesLinkedField, LensTypeField, MaxHoursField } from '../settings/fields';
@@ -56,6 +57,13 @@ export default function OnboardingPage() {
   const next = () => setIndex((i) => Math.min(i + 1, steps.length - 1));
   const back = () => setIndex((i) => Math.max(i - 1, 0));
 
+  // Android back button goes to the previous setup step.
+  useBackHandler(() => {
+    if (index === 0) return false;
+    back();
+    return true;
+  });
+
   async function finish(path) {
     setSaving(true);
     const openedAt =
@@ -70,7 +78,7 @@ export default function OnboardingPage() {
 
   if (step === 'welcome') {
     return (
-      <main className="mx-auto flex h-full max-w-md flex-col justify-center gap-6 px-6">
+      <main className="mx-auto flex h-full max-w-md flex-col justify-center gap-6 px-6 pt-[var(--safe-area-inset-top)] pb-[var(--safe-area-inset-bottom)]">
         <img src="/favicon.svg" alt="" width="64" height="64" />
         <div className="flex flex-col gap-2">
           <h1 className="m-0 text-3xl font-bold tracking-tight">Lens Log</h1>
@@ -253,7 +261,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="mx-auto flex h-full max-w-md flex-col px-5 pt-[max(env(safe-area-inset-top),16px)] pb-[max(env(safe-area-inset-bottom),20px)]">
+    <main className="mx-auto flex h-full max-w-md flex-col px-5 pt-[calc(var(--safe-area-inset-top)+12px)] pb-[max(var(--safe-area-inset-bottom),20px)]">
       <div className="flex items-center gap-2 py-2">
         <button
           type="button"

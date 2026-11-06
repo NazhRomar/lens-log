@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { format } from 'date-fns';
 import { Moon } from 'lucide-react';
 import Button from '../../components/ui/Button';
@@ -24,6 +25,9 @@ export default function ForgottenSessionCard({ session, now, maxHours, onDismiss
             They've been logged in since {format(session.startedAt, 'EEE h:mm a')}, which is{' '}
             {formatDuration(now - session.startedAt)}. Sleeping in lenses raises the risk of eye infection.
           </p>
+          <Link to="/guide/sleep" className="min-h-11 content-center text-sm font-semibold text-warn underline">
+            What to do if you slept in them
+          </Link>
         </div>
       </div>
 

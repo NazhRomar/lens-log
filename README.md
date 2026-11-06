@@ -9,9 +9,16 @@ Everything is stored on your phone. There is no account and no server.
 - **Replacement countdown** for each eye, or one countdown when both eyes share a schedule. Supports daily, 2-week, monthly and custom lenses.
 - **Wear timer** with your daily limit, and a prompt if it looks like you forgot to log taking them out (or slept in them).
 - **Reminders** that arrive even when the app is closed:
-  - the evening before and the morning new lenses are due
-  - one hour before, and when you reach, your daily wear limit
+  - the evening before and the morning new lenses are due ("Start new lenses" button)
+  - one hour before, and when you reach, your daily wear limit, counting all of today's wear ("Take lenses out" button)
+  - at your bedtime, if your lenses are still in (optional)
   - when the lens case or solution bottle should be replaced
+- **Home-screen widgets** (long-press the home screen → Widgets → Lens Log):
+  - **Countdown** (2×1): days until new lenses, and whether your lenses are in
+  - **Wear timer** (2×1): today's wear time, ticking live, with a Put in / Take out button
+  - **Days left** (1×1): just the countdown ring
+  - **Supplies** (2×1): days left on the case and solution, spare lenses per eye
+  - **Overview** (4×2): all of the above in one
 - **Supplies**: spare lenses per eye with low-stock warnings, case and solution trackers, and your prescription for each eye.
 - **History**: a weekly wear chart and every past lens, with whether it was replaced on time, late, torn or lost.
 - **Guide**: putting lenses in and taking them out, opening a blister pack, cleaning and storage, the inside-out check, makeup, what never to do, and red flags.

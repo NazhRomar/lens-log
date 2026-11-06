@@ -14,7 +14,7 @@ A contact lens tracker that installs as a PWA, works offline, and keeps all data
 | Routing | React Router |
 | Dates | `date-fns` |
 | Accounts / sync | None. Backup through JSON export/import instead |
-| Replacement clock | Calendar days counted from the day the pack is opened (first worn). Optional "count wear-days only" mode in settings |
+| Replacement clock | Calendar days counted from the day the pack is opened (first worn). |
 | Eyes | Tracked separately (left/right), can be linked so both replace together |
 | Platform | **Android app via Capacitor** (same React code wrapped as a native app), installed directly as an APK. No Play Store, $0. The web/PWA version still builds and can be hosted on Vercel |
 | Reminders | **Local notifications** scheduled on the phone (`@capacitor/local-notifications`): no server, work offline, fire when the app is closed. Web version: in-app alerts + .ics only |
@@ -103,7 +103,6 @@ db.version(1).stores({
   brand: 'Acme Lens',
   eyesLinked: true,
   maxWearHours: 10,
-  countMode: 'calendar',         // 'calendar' | 'wearDays'
   bedtimeReminder: '22:30',      // optional
   theme: 'system',               // 'system' | 'light' | 'dark'
   onboarded: true,
@@ -131,7 +130,7 @@ db.version(1).stores({
 { id: 'case', openedAt: 1762387200000, discardAfterDays: 90 }
 
 // stock: one row per eye (prescriptions differ)
-{ eye: 'left', count: 6, lowThreshold: 2 }
+{ eye: 'left', count: 6 }   // low when under ~45 days of lenses (isLowStock)
 
 // prescriptions: one row per eye
 { eye: 'left', power: -2.25, baseCurve: 8.6, diameter: 14.2, cylinder: null, axis: null, brand: 'Acme Lens' }
@@ -141,7 +140,6 @@ db.version(1).stores({
 ```
 
 Derived values (computed, not stored): days elapsed, replace-by date, cycle state, today's wear time, supply days left.
-When `countMode = 'wearDays'`, days elapsed = number of distinct days with a wear session since `openedAt`.
 
 ## Project structure
 

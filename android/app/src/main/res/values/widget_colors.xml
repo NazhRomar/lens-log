@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget colors, matching the app's light theme. Dark versions in values-night/. -->
+<resources>
+    <color name="widget_bg">#FFFFFF</color>
+    <color name="widget_text">#0F172A</color>
+    <color name="widget_muted">#526075</color>
+    <color name="widget_accent">#1D5FD1</color>
+    <color name="widget_track">#E8EDF4</color>
+    <color name="widget_ok">#157A3E</color>
+    <color name="widget_warn">#8A5200</color>
+    <color name="widget_warn_bar">#C27803</color>
+    <color name="widget_danger">#B42318</color>
+    <color name="widget_button_dark_bg">#0F172A</color>
+    <color name="widget_button_dark_text">#FFFFFF</color>
+    <color name="widget_button_accent_bg">#1D5FD1</color>
+    <color name="widget_button_accent_text">#FFFFFF</color>
+</resources>

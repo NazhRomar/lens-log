@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
+import { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import { format } from 'date-fns';
 import { ChevronRight, Settings, TriangleAlert } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
@@ -31,6 +31,15 @@ export default function HomePage() {
   const stock = useStock();
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [dismissedId, setDismissedId] = useState(null);
+  const [params, setParams] = useSearchParams();
+
+  // "Start new lenses" on a notification opens Home with ?replace=1.
+  useEffect(() => {
+    if (params.get('replace') === '1') {
+      setReplaceOpen(true);
+      setParams({}, { replace: true });
+    }
+  }, [params, setParams]);
 
   const loading = [settings, cycles, active, recent, supplies, stock].some((v) => v === undefined);
 
@@ -88,7 +97,7 @@ export default function HomePage() {
           onReplace={() => setReplaceOpen(true)}
         />
 
-        <SuppliesStrip supplies={supplies} stock={stock} now={now} />
+        <SuppliesStrip supplies={supplies} stock={stock} now={now} replacementDays={settings.replacementDays} />
 
         <Link
           to="/guide/red-flags"

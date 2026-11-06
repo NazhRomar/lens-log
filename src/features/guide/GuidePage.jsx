@@ -1,9 +1,13 @@
 import { Link } from 'react-router';
 import { ChevronRight, TriangleAlert } from 'lucide-react';
 import PageHeader from '../../components/layout/PageHeader';
-import { DISCLAIMER, SECTIONS, TOPICS } from './content';
+import { useSettings } from '../../hooks/useSettings';
+import { DISCLAIMER, guideSections } from './content';
 
 export default function GuidePage() {
+  const settings = useSettings();
+  const sections = settings ? guideSections(settings) : [];
+
   return (
     <>
       <PageHeader title="Guide" subtitle="Short, step-by-step lens care" />
@@ -25,13 +29,13 @@ export default function GuidePage() {
           <ChevronRight aria-hidden="true" size={18} />
         </Link>
 
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <section key={section.id} aria-labelledby={`sec-${section.id}`} className="flex flex-col gap-2">
             <h2 id={`sec-${section.id}`} className="m-0 text-[13px] font-semibold tracking-wide text-muted uppercase">
               {section.title}
             </h2>
             <ul className="m-0 list-none overflow-hidden rounded-[20px] border border-line bg-surface p-0">
-              {TOPICS.filter((t) => t.section === section.id).map((topic) => (
+              {section.topics.map((topic) => (
                 <li key={topic.id} className="border-b border-line last:border-b-0">
                   <Link to={`/guide/${topic.id}`} className="flex min-h-11 items-center gap-3.5 px-4 py-3.5 text-fg no-underline hover:bg-bg">
                     <span className="flex flex-1 flex-col gap-0.5">

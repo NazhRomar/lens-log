@@ -11,13 +11,15 @@ function timeLabel(ms) {
 }
 
 /**
- * Wear timer. While wearing it shows the current session against the max;
- * otherwise it shows the total worn today.
+ * Wear timer. Shows the total worn today against the daily limit, so taking
+ * lenses out and putting them back in still counts toward the same limit.
  */
 export default function WearCard({ active, wornTodayMs, lastEndedAt, now, maxHours }) {
   if (active) {
     // `now` ticks every few seconds and can be slightly older than a session that just started.
-    const ms = Math.max(0, Math.max(now, Date.now()) - active.startedAt);
+    const sessionMs = Math.max(0, Math.max(now, Date.now()) - active.startedAt);
+    const ms = Math.max(wornTodayMs, sessionMs);
+    const earlierToday = ms - sessionMs > 60_000;
     const state = wearState(ms, maxHours);
     const pct = Math.min(100, (ms / (maxHours * HOUR)) * 100);
     return (
@@ -31,8 +33,11 @@ export default function WearCard({ active, wornTodayMs, lastEndedAt, now, maxHou
         </div>
         <div className="flex items-baseline gap-2">
           <span className="text-5xl font-bold tracking-tighter tabular-nums">{formatDuration(ms)}</span>
-          <span className="text-[15px] text-muted">of {maxHours}h max</span>
+          <span className="text-[15px] text-muted">of {maxHours}h today</span>
         </div>
+        {earlierToday && (
+          <p className="-mt-2 m-0 text-[13px] text-muted">This time: {formatDuration(sessionMs)}</p>
+        )}
         <div
           role="progressbar"
           aria-label="Wear time"

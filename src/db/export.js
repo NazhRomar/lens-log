@@ -1,3 +1,7 @@
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { isNative } from '../platform/native';
+import { syncReminders } from '../platform/reminders';
 import { db } from './db';
 
 const FORMAT = 'lenslog-backup';
@@ -12,14 +16,30 @@ export async function exportData() {
   return { format: FORMAT, version: VERSION, exportedAt: Date.now(), tables };
 }
 
-/** Downloads a backup file of all data. */
+/**
+ * Saves a backup file of all data. In the browser it downloads the file; in the
+ * Android app (where downloads don't work) it opens the share sheet so the file
+ * can be saved to Files, Drive, email, etc.
+ */
 export async function downloadBackup() {
-  const data = await exportData();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+  const json = JSON.stringify(await exportData(), null, 2);
+  const filename = `lenslog-backup-${new Date().toISOString().slice(0, 10)}.json`;
+
+  if (isNative) {
+    const { uri } = await Filesystem.writeFile({
+      path: filename,
+      data: json,
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8,
+    });
+    await Share.share({ title: 'Lens Log backup', files: [uri] });
+    return;
+  }
+
+  const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = `lenslog-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -37,4 +57,5 @@ export async function importData(json) {
       if (Array.isArray(rows) && rows.length) await table.bulkPut(rows);
     }
   });
+  await syncReminders();
 }

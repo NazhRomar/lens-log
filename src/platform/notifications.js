@@ -5,7 +5,7 @@ import { isNative } from './native';
 // fire while the app is closed. Only available in the Android app; in a
 // browser every function here is a safe no-op.
 //
-// Each reminder kind owns a fixed id range so it can be replaced or cancelled
+// Each reminder kind owns a fixed id so it can be replaced or cancelled
 // without touching the others.
 export const IDS = {
   replaceLeft: 1001,
@@ -20,11 +20,11 @@ export const IDS = {
   test: 9001,
 };
 
-const CHANNEL_ID = 'reminders';
+/** Buttons shown on notifications. */
+export const ACTIONS = { wear: 'WEAR', replace: 'REPLACE' };
+export const ACTION_IDS = { takeOut: 'take-out', replace: 'replace' };
 
-export async function notificationsAvailable() {
-  return isNative;
-}
+const CHANNEL_ID = 'reminders';
 
 /** Asks for notification permission (Android 13+). Returns true if granted. */
 export async function ensurePermission() {
@@ -52,9 +52,9 @@ export function openExactAlarmSettings() {
   return LocalNotifications.changeExactNotificationSetting();
 }
 
-let channelReady = false;
-async function ensureChannel() {
-  if (channelReady) return;
+let ready = false;
+async function ensureSetup() {
+  if (ready) return;
   await LocalNotifications.createChannel({
     id: CHANNEL_ID,
     name: 'Reminders',
@@ -62,18 +62,24 @@ async function ensureChannel() {
     importance: 4, // high: shows as a heads-up notification
     visibility: 1,
   });
-  channelReady = true;
+  await LocalNotifications.registerActionTypes({
+    types: [
+      { id: ACTIONS.wear, actions: [{ id: ACTION_IDS.takeOut, title: 'Take lenses out' }] },
+      { id: ACTIONS.replace, actions: [{ id: ACTION_IDS.replace, title: 'Start new lenses' }] },
+    ],
+  });
+  ready = true;
 }
 
 /**
  * Schedules (or replaces) one notification at a fixed time. Times in the past are ignored.
- * @param {{id:number, at:Date|number, title:string, body:string, every?:'day'}} n
+ * @param {{id:number, at:Date|number, title:string, body:string, actionTypeId?:string}} n
  */
-export async function schedule({ id, at, title, body, every }) {
+export async function schedule({ id, at, title, body, actionTypeId }) {
   if (!isNative) return;
   const when = new Date(at);
-  if (!every && when.getTime() <= Date.now()) return;
-  await ensureChannel();
+  if (when.getTime() <= Date.now()) return;
+  await ensureSetup();
   await cancel(id);
   await LocalNotifications.schedule({
     notifications: [
@@ -83,9 +89,8 @@ export async function schedule({ id, at, title, body, every }) {
         body,
         channelId: CHANNEL_ID,
         smallIcon: 'ic_stat_lens',
-        schedule: every
-          ? { on: { hour: when.getHours(), minute: when.getMinutes() }, allowWhileIdle: true }
-          : { at: when, allowWhileIdle: true },
+        actionTypeId,
+        schedule: { at: when, allowWhileIdle: true },
       },
     ],
   });
@@ -96,9 +101,22 @@ export async function cancel(...ids) {
   await LocalNotifications.cancel({ notifications: ids.map((id) => ({ id })) });
 }
 
-/** Lists scheduled notifications (useful for a debug screen). */
-export async function pending() {
-  if (!isNative) return [];
+/** Cancels every scheduled reminder (used by "Reset all data"). */
+export async function cancelAll() {
+  if (!isNative) return;
   const { notifications } = await LocalNotifications.getPending();
-  return notifications;
+  if (notifications.length) await LocalNotifications.cancel({ notifications });
+}
+
+/**
+ * Calls `handler(actionId, notification)` when a notification or one of its
+ * buttons is tapped. actionId is 'tap' for the notification itself.
+ * Returns a function that removes the listener.
+ */
+export function onNotificationAction(handler) {
+  if (!isNative) return () => {};
+  const sub = LocalNotifications.addListener('localNotificationActionPerformed', ({ actionId, notification }) =>
+    handler(actionId, notification),
+  );
+  return () => sub.then((s) => s.remove());
 }
