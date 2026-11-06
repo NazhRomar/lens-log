@@ -25,14 +25,19 @@ export function wearState(ms, maxHours) {
   return 'ok';
 }
 
-/** True when an open session has run longer than the max: probably forgot to log removal. */
-export function isLikelyForgotten(session, now, maxHours) {
-  return !session.endedAt && now - session.startedAt > maxHours * HOUR;
+/**
+ * True when an open session has run well past the max (by `graceHours`):
+ * the user probably took the lenses out and forgot to log it, or slept in them.
+ */
+export function isLikelyForgotten(session, now, maxHours, graceHours = 4) {
+  return !session.endedAt && now - session.startedAt > (maxHours + graceHours) * HOUR;
 }
+
+export { HOUR };
 
 /** "6h 42m" */
 export function formatDuration(ms) {
-  const totalMin = Math.floor(ms / 60000);
+  const totalMin = Math.floor(Math.max(0, ms) / 60000);
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
   return h ? `${h}h ${m}m` : `${m}m`;

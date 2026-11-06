@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import AppLayout from './components/layout/AppLayout';
 import GuidePage from './features/guide/GuidePage';
@@ -8,10 +9,16 @@ import OnboardingPage from './features/onboarding/OnboardingPage';
 import SettingsPage from './features/settings/SettingsPage';
 import SuppliesPage from './features/supplies/SuppliesPage';
 import { useApplyTheme, useSettings } from './hooks/useSettings';
+import { syncReminders } from './platform/reminders';
 
 export default function App() {
   const settings = useSettings();
   useApplyTheme(settings?.theme);
+
+  // Rebuild reminders on launch and when wear/replacement settings change.
+  useEffect(() => {
+    if (settings?.onboarded) syncReminders();
+  }, [settings?.onboarded, settings?.maxWearHours, settings?.replacementDays]);
 
   if (!settings) return null; // database still opening
 
