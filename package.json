@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "icons": "pwa-assets-generator",
     "android:sync": "vite build && cap sync android",
-    "android:open": "cap open android"
+    "android:open": "cap open android",
+    "android:icons": "node scripts/android-icons.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.0",
@@ -26,6 +27,7 @@
     "react-router": "^8.5.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
     "@capacitor/cli": "^8.6.0",
     "@tailwindcss/vite": "^4.3.4",
     "@vite-pwa/assets-generator": "^2.0.0",
