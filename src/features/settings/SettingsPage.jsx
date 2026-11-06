@@ -3,7 +3,9 @@ import { Link } from 'react-router';
 import { ChevronLeft } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import { updateLensSchedule } from '../../db/actions';
 import { downloadBackup, importData } from '../../db/export';
+import { EyesLinkedField, LensTypeField, MaxHoursField } from './fields';
 import { updateSettings, useSettings } from '../../hooks/useSettings';
 import { isNative } from '../../platform/native';
 import {
@@ -74,7 +76,7 @@ const THEMES = [
   { value: 'dark', label: 'Dark' },
 ];
 
-// TODO(v1): lens type, link eyes, max wear hours, counting mode, bedtime reminder, reset.
+// TODO(v1): counting mode, bedtime reminder, reset all data.
 export default function SettingsPage() {
   const settings = useSettings();
   const fileRef = useRef(null);
@@ -103,6 +105,21 @@ export default function SettingsPage() {
         </Link>
         <h1 className="m-0 text-lg font-bold">Settings</h1>
       </header>
+
+      <Card aria-labelledby="lenses-h" className="flex flex-col gap-5">
+        <h2 id="lenses-h" className="m-0 text-[15px] font-semibold">
+          Lenses
+        </h2>
+        <LensTypeField
+          lensType={settings.lensType}
+          replacementDays={settings.replacementDays}
+          onChange={updateLensSchedule}
+        />
+        {settings.lensType !== 'daily' && (
+          <EyesLinkedField value={settings.eyesLinked} onChange={(v) => updateSettings({ eyesLinked: v })} />
+        )}
+        <MaxHoursField value={settings.maxWearHours} onChange={(v) => updateSettings({ maxWearHours: v })} />
+      </Card>
 
       <Card as="fieldset" className="m-0 flex flex-col gap-3">
         <legend className="sr-only">Theme</legend>

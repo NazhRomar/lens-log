@@ -1,4 +1,10 @@
-import { addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
+import { addDays, differenceInCalendarDays, isToday, parse, setHours, startOfDay } from 'date-fns';
+
+/** A date input value (yyyy-MM-dd) → timestamp: now if it is today, otherwise noon that day. */
+export function openedAtFromDate(dateStr) {
+  const day = parse(dateStr, 'yyyy-MM-dd', new Date());
+  return isToday(day) ? Date.now() : setHours(day, 12).getTime();
+}
 
 export const SOON_DAYS = 2;
 

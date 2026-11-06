@@ -22,11 +22,16 @@ export default function App() {
 
   if (!settings) return null; // database still opening
 
-  if (!settings.onboarded) return <OnboardingPage />;
-
   return (
     <BrowserRouter>
-      <Routes>
+      {settings.onboarded ? <AppRoutes /> : <OnboardingPage />}
+    </BrowserRouter>
+  );
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
           <Route path="guide" element={<GuidePage />} />
@@ -36,7 +41,6 @@ export default function App() {
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-      </Routes>
-    </BrowserRouter>
+    </Routes>
   );
 }

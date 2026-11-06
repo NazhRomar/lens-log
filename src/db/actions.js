@@ -33,9 +33,9 @@ export async function takeOut(at = Date.now(), estimated = false) {
 /**
  * Starts new lenses for the given eyes: closes each eye's current lens,
  * opens a new one, and takes one lens per eye from stock.
- * @param {{eyes:('left'|'right')[], openedAt:number, reason?:'scheduled'|'damaged'|'lost'}} opts
+ * @param {{eyes:('left'|'right')[], openedAt:number, reason?:'scheduled'|'damaged'|'lost', useStock?:boolean}} opts
  */
-export async function openLenses({ eyes, openedAt, reason = 'scheduled' }) {
+export async function openLenses({ eyes, openedAt, reason = 'scheduled', useStock = true }) {
   const now = Date.now();
   await db.transaction('rw', db.cycles, db.stock, db.settings, async () => {
     const settings = await db.settings.get('settings');
@@ -49,10 +49,41 @@ export async function openLenses({ eyes, openedAt, reason = 'scheduled' }) {
         closedAt: null,
         closeReason: null,
       });
+      if (!useStock) continue;
       const stock = await db.stock.get(eye);
       if (stock && stock.count > 0) await db.stock.update(eye, { count: stock.count - 1 });
     }
   });
   await ensurePermission().catch(() => false);
+  await syncReminders();
+}
+
+/**
+ * Changes the lens type. Lenses already open switch to the new schedule too,
+ * so fixing a wrong choice updates the countdown right away.
+ */
+export async function updateLensSchedule({ lensType, replacementDays }) {
+  await db.transaction('rw', db.settings, db.cycles, async () => {
+    await db.settings.update('settings', { lensType, replacementDays });
+    await db.cycles.filter((c) => c.closedAt == null).modify({ replacementDays });
+  });
+  await syncReminders();
+}
+
+/**
+ * Saves the onboarding answers. `onboarded` is set last so Home appears with everything in place.
+ * @param {{settings:object, openedAt:number|null, stock:{left:number,right:number}}} answers
+ */
+export async function completeOnboarding({ settings, openedAt, stock }) {
+  await db.transaction('rw', db.settings, db.stock, async () => {
+    await db.settings.update('settings', settings);
+    await db.stock.update('left', { count: stock.left });
+    await db.stock.update('right', { count: stock.right });
+  });
+  if (openedAt) {
+    // The lenses in your eyes are from an already-open pack, not from the spares counted in stock.
+    await openLenses({ eyes: ['left', 'right'], openedAt, useStock: false });
+  }
+  await db.settings.update('settings', { onboarded: true });
   await syncReminders();
 }

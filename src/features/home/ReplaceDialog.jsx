@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { format, isToday, parse, setHours } from 'date-fns';
+import { format } from 'date-fns';
 import { X } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Segmented from '../../components/ui/Segmented';
 import { openLenses } from '../../db/actions';
+import { openedAtFromDate } from '../../domain/cycles';
 
 const EYES = [
   { value: 'both', label: 'Both' },
@@ -16,12 +17,6 @@ const REASONS = [
   { value: 'damaged', label: 'Torn' },
   { value: 'lost', label: 'Lost' },
 ];
-
-/** Opened-on date → timestamp: now if today, otherwise noon that day. */
-function toOpenedAt(dateStr) {
-  const day = parse(dateStr, 'yyyy-MM-dd', new Date());
-  return isToday(day) ? Date.now() : setHours(day, 12).getTime();
-}
 
 /**
  * Bottom sheet for starting new lenses.
@@ -52,7 +47,7 @@ export default function ReplaceDialog({ open, onClose, firstTime, stock }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await openLenses({ eyes: selected, openedAt: toOpenedAt(date), reason: firstTime ? 'scheduled' : reason });
+      await openLenses({ eyes: selected, openedAt: openedAtFromDate(date), reason: firstTime ? 'scheduled' : reason });
       onClose();
     } finally {
       setSaving(false);
