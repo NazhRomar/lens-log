@@ -1,6 +1,7 @@
 import { addDays, setHours, setMinutes, startOfDay } from 'date-fns';
 import { db } from '../db/db';
 import { cycleStatus, sameSchedule } from '../domain/cycles';
+import { supplyStatus } from '../domain/supplies';
 import { HOUR } from '../domain/wear';
 import { IDS, cancel, schedule } from './notifications';
 import { isNative } from './native';
@@ -67,6 +68,25 @@ async function syncWear(settings) {
   });
 }
 
+const SUPPLY_AT = { hour: 9, minute: 0 };
+const SUPPLY_TEXT = {
+  case: { id: IDS.caseReplace, title: 'Time for a new lens case', body: 'Your lens case is due for replacement.' },
+  solution: {
+    id: IDS.solutionDiscard,
+    title: 'Time for fresh solution',
+    body: 'Your solution bottle has been open too long. Open a new one.',
+  },
+};
+
+async function syncSupplies(now) {
+  await cancel(IDS.caseReplace, IDS.solutionDiscard);
+  for (const supply of await db.supplies.toArray()) {
+    const text = SUPPLY_TEXT[supply.id];
+    if (!text) continue;
+    await schedule({ ...text, at: atTime(supplyStatus(supply, now).replaceBy, SUPPLY_AT) });
+  }
+}
+
 /**
  * Rebuilds every scheduled reminder from what is in the database.
  * Safe to call any time; never throws (a failed reminder must not break the app).
@@ -79,6 +99,7 @@ export async function syncReminders() {
     const now = Date.now();
     await syncReplacement(settings, now);
     await syncWear(settings);
+    await syncSupplies(now);
   } catch (err) {
     console.warn('Could not schedule reminders', err);
   }

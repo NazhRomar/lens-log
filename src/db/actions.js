@@ -58,6 +58,33 @@ export async function openLenses({ eyes, openedAt, reason = 'scheduled', useStoc
   await syncReminders();
 }
 
+/** Sets the spare-lens count for one eye. */
+export async function setStock(eye, count) {
+  await db.stock.update(eye, { count: Math.max(0, count) });
+}
+
+/**
+ * Starts or corrects tracking of the lens case or solution bottle.
+ * @param {'case'|'solution'} id
+ * @param {{openedAt:number, discardAfterDays:number}} data
+ */
+export async function setSupply(id, { openedAt, discardAfterDays }) {
+  await db.supplies.put({ id, openedAt, discardAfterDays });
+  await syncReminders();
+}
+
+/**
+ * Saves both prescriptions and the lens brand.
+ * @param {{left:object, right:object, brand:string}} data
+ */
+export async function savePrescriptions({ left, right, brand }) {
+  await db.transaction('rw', db.prescriptions, db.settings, async () => {
+    await db.prescriptions.put({ ...left, eye: 'left' });
+    await db.prescriptions.put({ ...right, eye: 'right' });
+    await db.settings.update('settings', { brand: brand.trim() });
+  });
+}
+
 /**
  * Changes the lens type. Lenses already open switch to the new schedule too,
  * so fixing a wrong choice updates the countdown right away.
