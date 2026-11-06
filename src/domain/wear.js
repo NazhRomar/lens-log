@@ -1,4 +1,4 @@
-import { startOfDay } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -15,6 +15,17 @@ export function wornToday(sessions, now) {
     const start = Math.max(s.startedAt, midnight);
     const end = s.endedAt ?? now;
     return end > start ? sum + (end - start) : sum;
+  }, 0);
+}
+
+/** Wear time within one calendar day; sessions crossing midnight are split between days. */
+export function wornOnDay(sessions, day, now) {
+  const start = startOfDay(day).getTime();
+  const end = Math.min(addDays(start, 1).getTime(), now);
+  return sessions.reduce((sum, s) => {
+    const a = Math.max(s.startedAt, start);
+    const b = Math.min(s.endedAt ?? now, end);
+    return b > a ? sum + (b - a) : sum;
   }, 0);
 }
 

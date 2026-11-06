@@ -37,6 +37,43 @@ export function cycleStatus(cycle, now, opts = {}) {
   return { day, total, daysLeft, replaceBy, state, progress: Math.min(1, day / total) };
 }
 
+/**
+ * How a finished lens ended.
+ * outcome: 'onTime' | 'late' | 'damaged' | 'lost'
+ */
+export function cycleOutcome(cycle) {
+  const daysUsed = differenceInCalendarDays(cycle.closedAt, cycle.openedAt);
+  const replaceBy = addDays(cycle.openedAt, cycle.replacementDays);
+  const daysLate = differenceInCalendarDays(cycle.closedAt, replaceBy);
+  let outcome = 'onTime';
+  if (cycle.closeReason === 'damaged') outcome = 'damaged';
+  else if (cycle.closeReason === 'lost') outcome = 'lost';
+  else if (daysLate > 0) outcome = 'late';
+  return { outcome, daysUsed: Math.max(1, daysUsed), daysLate: Math.max(0, daysLate) };
+}
+
+/**
+ * Finished lenses, newest first. Both eyes replaced together with the same
+ * dates and reason become one entry with eye 'both'.
+ */
+export function groupClosedCycles(cycles) {
+  const sorted = [...cycles].sort((a, b) => b.closedAt - a.closedAt);
+  const out = [];
+  for (const c of sorted) {
+    const pair = out.find(
+      (g) =>
+        g.eye !== 'both' &&
+        g.eye !== c.eye &&
+        Math.abs(g.closedAt - c.closedAt) < 60_000 &&
+        g.closeReason === c.closeReason &&
+        sameSchedule(g, c),
+    );
+    if (pair) pair.eye = 'both';
+    else out.push({ ...c });
+  }
+  return out;
+}
+
 /** True when both eyes were opened the same day with the same schedule, so they can be shown as one. */
 export function sameSchedule(a, b) {
   return (
