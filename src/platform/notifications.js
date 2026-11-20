@@ -81,6 +81,11 @@ export async function schedule({ id, at, title, body, actionTypeId }) {
   if (when.getTime() <= Date.now()) return;
   await ensureSetup();
   await cancel(id);
+  // Only ask for an exact alarm when the user has already allowed them
+  // (Settings → Notifications → Exact alarms). If we ask without permission,
+  // the plugin opens Android's "Alarms & reminders" screen on every schedule
+  // and waits there — which kicked people out of the app and stalled syncing.
+  const exact = (await exactAlarmStatus().catch(() => 'denied')) === 'granted';
   await LocalNotifications.schedule({
     notifications: [
       {
@@ -90,6 +95,7 @@ export async function schedule({ id, at, title, body, actionTypeId }) {
         channelId: CHANNEL_ID,
         smallIcon: 'ic_stat_lens',
         actionTypeId,
+        isExactNotification: exact,
         schedule: { at: when, allowWhileIdle: true },
       },
     ],

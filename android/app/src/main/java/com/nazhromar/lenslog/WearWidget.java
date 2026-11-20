@@ -21,7 +21,9 @@ public class WearWidget extends AppWidgetProvider {
             v.setTextViewText(R.id.wear_status, "Open Lens Log");
             v.setTextColor(R.id.wear_status, d.color(R.color.widget_muted));
         } else {
-            v.setTextViewText(R.id.wear_status, d.wearing() ? "Wearing" : "Not wearing");
+            // The start time also makes the live clock read right: under an hour
+            // Android shows it as minutes:seconds ("02:25"), never hours.
+            v.setTextViewText(R.id.wear_status, d.wearing() ? "In since " + d.wearingSinceTime() : "Not wearing");
             v.setTextColor(R.id.wear_status, d.color(d.wearing() ? R.color.widget_ok : R.color.widget_muted));
         }
 
@@ -37,7 +39,7 @@ public class WearWidget extends AppWidgetProvider {
             v.setTextViewText(R.id.wear_total, WidgetData.duration(d.wornTodayMs()));
         }
 
-        v.setTextViewText(R.id.wear_limit, "of " + d.maxHours + "h today");
+        v.setTextViewText(R.id.wear_limit, "max " + d.maxHours + "h");
         v.setTextColor(R.id.wear_limit, d.color(d.overLimit() ? R.color.widget_danger : R.color.widget_muted));
 
         d.bindWearButton(v, R.id.wear_button);

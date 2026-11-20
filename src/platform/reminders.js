@@ -125,6 +125,8 @@ async function syncSupplies(now) {
  */
 export async function syncReminders() {
   if (!isNative) return;
+  // Widgets first: they must never wait on (or be blocked by) the notification plugin.
+  await syncWidget();
   try {
     const settings = await db.settings.get('settings');
     if (!settings) return;
@@ -135,5 +137,4 @@ export async function syncReminders() {
   } catch (err) {
     console.warn('Could not schedule reminders', err);
   }
-  await syncWidget();
 }

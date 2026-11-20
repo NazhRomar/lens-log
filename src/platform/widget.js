@@ -79,6 +79,20 @@ export async function syncWidget() {
   }
 }
 
+export const WIDGET_TYPES = [
+  { type: 'countdown', name: 'Countdown', size: '2×1', about: 'Days until new lenses, and whether they are in' },
+  { type: 'wear', name: 'Wear timer', size: '2×1', about: "Today's wear time, live, with a Put in / Take out button" },
+  { type: 'ring', name: 'Days left', size: '1×1', about: 'Just the countdown ring' },
+  { type: 'supplies', name: 'Supplies', size: '2×1', about: 'Case, solution and spare lenses' },
+  { type: 'overview', name: 'Overview', size: '4×2', about: 'Everything in one' },
+];
+
+/** Asks the launcher to add a widget (Android shows its own prompt). Throws with a message if it can't. */
+export async function pinWidget(type) {
+  await syncWidget();
+  await WidgetBridge.pinWidget({ type });
+}
+
 /** Empties the widgets (after "Reset all data"). */
 export async function clearWidget() {
   if (!isNative) return;

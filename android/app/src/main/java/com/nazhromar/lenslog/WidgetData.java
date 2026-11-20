@@ -156,6 +156,13 @@ final class WidgetData {
         return SystemClock.elapsedRealtime() - wornTodayMs();
     }
 
+    /** "5:32 PM", or "Mon 11:40 PM" when the session started before today. */
+    String wearingSinceTime() {
+        String time = android.text.format.DateFormat.getTimeFormat(context).format(new Date(wearingSince));
+        if (wearingSince >= startOfToday()) return time;
+        return new SimpleDateFormat("EEE", Locale.getDefault()).format(new Date(wearingSince)) + " " + time;
+    }
+
     boolean overLimit() {
         return wornTodayMs() >= maxHours * 60L * 60 * 1000;
     }

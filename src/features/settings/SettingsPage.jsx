@@ -9,6 +9,7 @@ import { downloadBackup, importData } from '../../db/export';
 import { BedtimeField, EyesLinkedField, LensTypeField, MaxHoursField } from './fields';
 import { updateSettings, useSettings } from '../../hooks/useSettings';
 import { isNative } from '../../platform/native';
+import { WIDGET_TYPES, pinWidget } from '../../platform/widget';
 import {
   IDS,
   ensurePermission,
@@ -16,6 +17,53 @@ import {
   openExactAlarmSettings,
   schedule,
 } from '../../platform/notifications';
+
+function WidgetsCard() {
+  const [status, setStatus] = useState('');
+  if (!isNative) return null;
+
+  async function add(type) {
+    try {
+      await pinWidget(type);
+      setStatus('Confirm on the prompt to add it to your home screen.');
+    } catch (err) {
+      setStatus(err?.message || 'Long-press your home screen and choose Widgets → Lens Log.');
+    }
+  }
+
+  return (
+    <Card aria-labelledby="widgets-h" className="flex flex-col gap-3">
+      <h2 id="widgets-h" className="m-0 text-[15px] font-semibold">
+        Home-screen widgets
+      </h2>
+      <ul className="m-0 flex list-none flex-col p-0">
+        {WIDGET_TYPES.map((w) => (
+          <li key={w.type} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="text-[15px] font-semibold">
+                {w.name} <span className="font-normal text-muted">· {w.size}</span>
+              </span>
+              <span className="text-[13px] text-muted">{w.about}</span>
+            </span>
+            <button
+              type="button"
+              aria-label={`Add ${w.name} widget`}
+              onClick={() => add(w.type)}
+              className="min-h-11 flex-none cursor-pointer rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-accent"
+            >
+              Add
+            </button>
+          </li>
+        ))}
+      </ul>
+      {status && (
+        <p role="status" className="m-0 text-sm text-fg-soft">
+          {status}
+        </p>
+      )}
+    </Card>
+  );
+}
 
 function NotificationsCard({ settings }) {
   const [status, setStatus] = useState('');
@@ -156,6 +204,8 @@ export default function SettingsPage() {
       </Card>
 
       <NotificationsCard settings={settings} />
+
+      <WidgetsCard />
 
       <Card className="flex flex-col gap-3">
         <h2 className="m-0 text-[15px] font-semibold">Backup</h2>

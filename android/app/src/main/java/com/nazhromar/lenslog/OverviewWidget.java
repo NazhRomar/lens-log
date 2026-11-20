@@ -32,11 +32,11 @@ public class OverviewWidget extends AppWidgetProvider {
 
         // Wear line: live clock while wearing, today's total otherwise.
         if (d.wearing()) {
-            v.setTextViewText(R.id.ov_wear_prefix, "Wearing · ");
+            v.setTextViewText(R.id.ov_wear_prefix, "In since " + d.wearingSinceTime() + " · ");
             v.setChronometer(R.id.ov_chrono, d.chronometerBase(), null, true);
             v.setViewVisibility(R.id.ov_chrono, View.VISIBLE);
             v.setViewVisibility(R.id.ov_wear_total, View.GONE);
-            v.setTextViewText(R.id.ov_wear_suffix, " of " + d.maxHours + "h");
+            v.setTextViewText(R.id.ov_wear_suffix, " today");
         } else {
             v.setTextViewText(R.id.ov_wear_prefix, d.hasData ? "Lenses out · " : "");
             v.setChronometer(R.id.ov_chrono, d.chronometerBase(), null, false);

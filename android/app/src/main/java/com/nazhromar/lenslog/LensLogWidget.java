@@ -3,10 +3,7 @@ package com.nazhromar.lenslog;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
-import android.text.format.DateFormat;
-import android.text.format.DateUtils;
 import android.widget.RemoteViews;
-import java.util.Date;
 
 /** Countdown · 2x1: days until new lenses, and whether lenses are in. */
 public class LensLogWidget extends AppWidgetProvider {
@@ -22,8 +19,7 @@ public class LensLogWidget extends AppWidgetProvider {
         if (!d.hasData) {
             wear = "to start tracking";
         } else if (d.wearing()) {
-            String time = DateFormat.getTimeFormat(c).format(new Date(d.wearingSince));
-            wear = DateUtils.isToday(d.wearingSince) ? "In since " + time : "In since yesterday " + time;
+            wear = "In " + d.wearingSinceTime(); // short enough to fit next to the eye label
         } else {
             wear = "Lenses out";
         }

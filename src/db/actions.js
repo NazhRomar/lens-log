@@ -1,7 +1,7 @@
 import { db } from './db';
 import { cancelAll, ensurePermission } from '../platform/notifications';
 import { syncReminders } from '../platform/reminders';
-import { clearWidget } from '../platform/widget';
+import { clearWidget, syncWidget } from '../platform/widget';
 
 /** Deletes everything on this device, cancels reminders and restarts at setup. */
 export async function resetAllData() {
@@ -71,6 +71,7 @@ export async function openLenses({ eyes, openedAt, reason = 'scheduled', useStoc
 /** Sets the spare-lens count for one eye. */
 export async function setStock(eye, count) {
   await db.stock.update(eye, { count: Math.max(0, count) });
+  await syncWidget(); // spares show on the Supplies and Overview widgets
 }
 
 /**

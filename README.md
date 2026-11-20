@@ -13,7 +13,7 @@ Everything is stored on your phone. There is no account and no server.
   - one hour before, and when you reach, your daily wear limit, counting all of today's wear ("Take lenses out" button)
   - at your bedtime, if your lenses are still in (optional)
   - when the lens case or solution bottle should be replaced
-- **Home-screen widgets** (long-press the home screen → Widgets → Lens Log):
+- **Home-screen widgets** (Settings → Home-screen widgets → Add, or long-press the home screen → Widgets → Lens Log):
   - **Countdown** (2×1): days until new lenses, and whether your lenses are in
   - **Wear timer** (2×1): today's wear time, ticking live, with a Put in / Take out button
   - **Days left** (1×1): just the countdown ring
